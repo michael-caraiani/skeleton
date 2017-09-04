@@ -4,8 +4,16 @@ declare(strict_types=1);
 
 namespace App;
 
+/**
+ * Application level router.
+ */
 class Router extends \TiSuit\Core\Root
 {
+    /**
+     * Map routes from `routes.php` config.
+     *
+     * @param \Slim\App $app
+     */
     public function __invoke(\Slim\App $app): void
     {
         foreach ($this->config('routes') as $group_name => $routes) {
