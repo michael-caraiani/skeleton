@@ -17,7 +17,7 @@ class Provider implements ServiceProviderInterface
      */
     public function register(Container $container): void
     {
-        $config['app_router'] = $this->setAppRouter();
+        $container['app_router'] = $this->setAppRouter();
     }
 
     /**

@@ -1,6 +1,10 @@
 <?php
 
 declare(strict_types=1);
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
 /**
  * Easy to use routing with route groups.
  *
@@ -11,7 +15,7 @@ $routes = [
         '' => [
             'name' => 'index',
             'methods' => ['GET'],
-            'closure' => function ($request, $response, $args) {
+            'closure' => function (ServerRequestInterface $request, ResponseInterface $response, array $args) {
                 return $response->write('Hello world!');
             },
         ],

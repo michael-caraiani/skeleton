@@ -1,5 +1,7 @@
 {
     "name": "tisuit/skeleton",
+    "description": "Skeleton for TiSuit",
+    "license": "MIT",
     "prefer-stable": true,
     "require": {
         "tisuit/core": "@stable"
