@@ -4,7 +4,8 @@
     "license": "MIT",
     "prefer-stable": true,
     "require": {
-        "tisuit/core": "@stable"
+        "tisuit/core": "@stable",
+        "hirak/prestissimo": "@stable"
     },
     "autoload": {
         "psr-4": {
