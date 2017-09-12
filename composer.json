@@ -5,6 +5,7 @@
     "prefer-stable": true,
     "require": {
         "tisuit/core": "@stable",
+        "vlucas/phpdotenv": "@stable",
         "hirak/prestissimo": "@stable"
     },
     "autoload": {

@@ -10,6 +10,7 @@
 + [How to use](#how-to-use)
     * [Installation](#installation)
     * [Adding components](#adding-components)
+    * [Environments](#environments)
 
 <!-- vim-markdown-toc -->
 
@@ -32,3 +33,7 @@ composer require tisuit/html
 ```
 
 Follow setup instructions in package README.md file (in most cases - just add new provider in your `suit.php` config and start using it :)
+
+## Environments
+
+See [documentation](app/env/README.md)
