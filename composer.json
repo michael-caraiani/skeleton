@@ -15,5 +15,10 @@
     },
     "config": {
         "vendor-dir": "app/vendor"
+    },
+    "scripts": {
+        "post-create-project-cmd": [
+            "rm -f {CODE_OF_CONDUCT.md,CONTRIBUTING.md,LICENSE,README.md,.travis.yml}"
+        ]
     }
 }
