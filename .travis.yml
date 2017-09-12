@@ -6,7 +6,7 @@ php:
 
 before_script:
 - composer install
-- wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v2.5.0/php-cs-fixer.phar -O php-cs-fixer
+- wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v2.6.0/php-cs-fixer.phar -O php-cs-fixer
 - chmod +x ./php-cs-fixer
 
 script:
