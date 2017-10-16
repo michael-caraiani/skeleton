@@ -18,6 +18,7 @@ class Provider implements ServiceProviderInterface
     public function register(Container $container): void
     {
         $container['app_router'] = $this->setAppRouter();
+        $container['appErrorHandler'] = $this->setAppErrorHandler();
         $container['logger'] = $this->setLogger();
     }
 
@@ -33,6 +34,23 @@ class Provider implements ServiceProviderInterface
         };
     }
 
+    /**
+     * Set App error handler.
+     *
+     * @return callable
+     */
+    protected function setAppErrorHandler(): callable
+    {
+        return function ($c) {
+            return new ErrorHandler($c);
+        };
+    }
+
+    /**
+     * Set logger.
+     *
+     * @return callable
+     */
     protected function setLogger(): callable
     {
         return function ($c) {
