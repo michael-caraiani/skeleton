@@ -10,7 +10,7 @@
 + [How to use](#how-to-use)
     * [Installation](#installation)
     * [Adding components](#adding-components)
-    * [Environments](#environments)
+    * [Environment variables](#environment-variables)
 
 <!-- vim-markdown-toc -->
 
@@ -34,6 +34,9 @@ composer require tisuit/html
 
 Follow setup instructions in package README.md file (in most cases - just add new provider in your `suit.php` config and start using it :)
 
-## Environments
+## Environment variables
 
-See [documentation](app/env/README.md)
+Docker image offers following env variables:
+
+* **APP_ENV** - Application environment, usable when you need to define separate config for each environment, eg: for database. Default: dev
+* **PHP_OPCACHE_ENABLE** - Enable PHP Opcache. Default: 1

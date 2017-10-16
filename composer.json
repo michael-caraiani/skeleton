@@ -5,8 +5,8 @@
     "prefer-stable": true,
     "require": {
         "tisuit/core": "@stable",
-        "vlucas/phpdotenv": "@stable",
-        "hirak/prestissimo": "@stable"
+        "hirak/prestissimo": "@stable",
+        "monolog/monolog": "@stable"
     },
     "autoload": {
         "psr-4": {

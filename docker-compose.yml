@@ -4,21 +4,21 @@ services:
     build: .
     volumes:
       - cache:/var/www/app/cache
-      - $PWD:/var/www
+      - .:/var/www
     ports:
       - 8080:8080
-    env_file: ['app/env/dev']
+    environment:
+      - PHP_OPCACHE_ENABLE=0
 
   update:
     image: composer
     command: ["update", "--no-dev", "--ignore-platform-reqs", "--no-ansi", "--no-interaction", "--no-progress", "--no-scripts", "-a", "-d", "/app"]
-    volumes: ['$PWD:/app']
+    volumes: ['.:/app']
 
   phpunit:
     image: phpunit/phpunit
     command: ["--coverage-text","--coverage-html", "/app/tests/coverage", "--colors=never"]
-    env_file: ['app/env/dev']
-    volumes: ['$PWD:/app']
+    volumes: ['.:/app']
 
 volumes:
   cache:

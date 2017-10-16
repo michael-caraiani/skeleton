@@ -1,11 +1,14 @@
-image: docker:latest
+image: tico/docker
 
 variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    TARGET_PATH: /root/app
+    IMAGE_APP: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     DOCKER_DRIVER: overlay
-    HOST_PRODUCTION: user@host
-    APP_DIR: /usr/app
-    UPGRADE: "docker-compose pull --parallel --quiet && docker-compose rm -f -s -v app && docker-compose up -d --force-recreate --remove-orphans --no-deps app && docker-compose up -d --no-recreate "
+
+cache:
+    paths:
+    - .php_cs.cache
+    - app/vendor
 
 services:
     - docker:dind
@@ -15,62 +18,83 @@ stages:
     - build
     - deploy
 
-test_codestyle:
-    stage: test
-    script:
-        - docker run -v `pwd`:/app rakshazi/php-cs-fixer fix --dry-run --diff
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 
-test_unit:
+.deploy: &deploy
+  script:
+    - cibu prepare-ssh
+    - cibu compose login gitlab-ci-token $CI_JOB_TOKEN $CI_REGISTRY
+    - cibu compose upload $CI_ENVIRONMENT_SLUG
+    - cibu compose pull
+    - cibu compose update app
+    - cibu compose up -d --no-deps --no-recreate
+    - cibu compose cleanup
+
+.tags: &tags
+  tags:
+    - docker
+
+
+codestyle:
     stage: test
-    before_script:
-        - apk --no-cache add py-pip
-        - pip install docker-compose==1.12.0
-        - docker-compose run update
     script:
-        - docker-compose up -d
-        - sleep 30
-        - docker-compose exec -T app phinx migrate || true
-        - docker-compose exec -T app phinx seed:run || true
-        - docker-compose run phpunit
-    tags:
-        - docker
+      - docker run -v `pwd`:/app rakshazi/php-cs-fixer fix --dry-run --diff
+    <<: *tags
+
+unit:
+    stage: test
+    script:
+      - docker run -i -v `pwd`:/app composer update --no-dev --ignore-platform-reqs --no-interaction --no-progress -a -d /app
+      - docker-compose up -d
+      - sleep 30
+      - docker-compose exec -T app phinx migrate || true
+      - docker-compose exec -T app phinx seed:run || true
+      - docker-compose run phpunit
+    <<: *tags
 
 build:
     stage: build
     only:
         - master
         - develop
-    before_script:
-        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-        - apk --no-cache add py-pip
-        - pip install docker-compose==1.12.0
-        - docker-compose run update
     script:
-        - docker build --force-rm --no-cache --pull -t $IMAGE_TAG .
-        - docker push $IMAGE_TAG
-    tags:
-        - docker
+        - docker run -i -v `pwd`:/app composer update --no-dev --ignore-platform-reqs --no-interaction --no-progress -a -d /app
+        - docker build -t $IMAGE_APP .
+        - docker push $IMAGE_APP
+    <<: *tags
+
+build_swagger:
+    stage: build
+    only:
+        - master
+        - develop
+    script:
+        - docker run -v `pwd`:/app -i rakshazi/swagger-php app/src
+        - docker build -f Dockerfile.swaggerui -t $IMAGE_SWAGGER .
+        - docker push $IMAGE_SWAGGER
+    <<: *tags
+
+deploy_staging:
+    stage: deploy
+    only:
+        - develop
+    environment:
+      name: qa
+      url: https://qa.example.com
+    variables:
+      TARGET_HOST: root@qa.example.com
+    <<: *deploy
+    <<: *tags
 
 deploy_production:
     stage: deploy
-    environment:
-        name: staging
-        url: http://tisuit.titanium.codes
     only:
         - master
-    before_script:
-        - mkdir -p ~/.ssh
-        - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-        - apk --no-cache add openssh-client curl
-        - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        - chmod 600 ~/.ssh/id_rsa
-        - eval $(ssh-agent -s)
-        - ssh-add
-    script:
-        - ssh $HOST_PRODUCTION docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-        - ssh $HOST_PRODUCTION docker pull $IMAGE_TAG
-        - scp docker-compose-prod.yml $HOST_PRODUCTION:$APP_DIR/docker-compose.yml
-        - ssh $HOST_PRODUCTION "cd $APP_DIR; $UPGRADE"
-    after_script:
-        - ssh $HOST_PRODUCTION docker system prune -a -f
-        - rm -rf ~/.ssh
+    environment:
+      name: prod
+      url: https://example.com
+    variables:
+      TARGET_HOST: root@example.com
+    <<: *deploy
+    <<: *tags

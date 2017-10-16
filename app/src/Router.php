@@ -18,9 +18,15 @@ class Router extends \TiSuit\Core\Root
     {
         foreach ($this->config('routes') as $group_name => $routes) {
             $app->group($group_name, function () use ($group_name, $routes): void {
+                $name = ('/' === $group_name || !$group_name) ? 'index' : trim($group_name, '/');
+                $controller = '\App\Controller\\'.ucfirst($name);
+                if (!class_exists($controller)) {
+                    throw new \Exception('Controller for group '.$name.' not found');
+                }
+
                 foreach ($routes as $pattern => $info) {
-                    $this->map($info['methods'] ?? ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], $pattern, $info['closure'])
-                        ->setName($info['name'] ?? $group_name.'-'.$pattern);
+                    $this->map($info['methods'] ?? ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], $pattern, $controller)
+                        ->setName($info['name'] ?? $name.'-'.($info['action'] ?? $pattern));
                 }
             });
         }
