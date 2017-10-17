@@ -21,6 +21,15 @@ stages:
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 
+.up: &up
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker-compose run update
+    - docker-compose up -d
+    - sleep 30
+    - docker-compose exec -T app phinx migrate || true
+    - docker-compose exec -T app phinx seed:run || true
+
 .deploy: &deploy
   script:
     - cibu prepare-ssh
@@ -42,15 +51,26 @@ codestyle:
       - docker run -v `pwd`:/app rakshazi/php-cs-fixer fix --dry-run --diff
     <<: *tags
 
-unit:
+phpunit:
     stage: test
+    <<: *up
     script:
-      - docker run -i -v `pwd`:/app composer update --no-dev --ignore-platform-reqs --no-interaction --no-progress -a -d /app
-      - docker-compose up -d
-      - sleep 30
-      - docker-compose exec -T app phinx migrate || true
-      - docker-compose exec -T app phinx seed:run || true
       - docker-compose run phpunit
+    artifacts:
+        name: "phpunit"
+        paths:
+          - app/tests/coverage/
+    <<: *tags
+
+codeception:
+    stage: test
+    <<: *up
+    script:
+      - docker-compose run codeception run --html report.html
+    artifacts:
+        name: "codeception"
+        paths:
+          - app/tests/_output/
     <<: *tags
 
 build:
@@ -59,7 +79,7 @@ build:
         - master
         - develop
     script:
-        - docker run -i -v `pwd`:/app composer update --no-dev --ignore-platform-reqs --no-interaction --no-progress -a -d /app
+        - docker-compose run update
         - docker build -t $IMAGE_APP .
         - docker push $IMAGE_APP
     <<: *tags
