@@ -2,6 +2,7 @@ image: tico/docker
 
 variables:
     TARGET_PATH: /root/app
+    SENTRY_WEBHOOK: https://github.com/getsentry/sentry/issues/2367 #Replace it with your webhook, can be found in sentry project -> releases page
     IMAGE_APP: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     DOCKER_DRIVER: overlay
 
@@ -39,6 +40,7 @@ before_script:
     - cibu compose update app
     - cibu compose up -d --no-deps --no-recreate
     - cibu compose cleanup
+    - cibu sentry release $CI_ENVIRONMENT_SLUG-$CI_PIPELINE_ID $CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID
 
 .tags: &tags
   tags:
