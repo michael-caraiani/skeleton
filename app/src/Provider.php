@@ -18,6 +18,7 @@ class Provider implements ServiceProviderInterface
     public function register(Container $container): void
     {
         $container['app_router'] = $this->setAppRouter();
+        $container['baseurl_middleware'] = $this->setBaseurlMiddleware();
         $container['appErrorHandler'] = $this->setAppErrorHandler();
         $container['logger'] = $this->setLogger();
     }
@@ -43,6 +44,18 @@ class Provider implements ServiceProviderInterface
     {
         return function ($c) {
             return new ErrorHandler($c);
+        };
+    }
+
+    /**
+     * Set Baseurl middleware.
+     *
+     * @return callable
+     */
+    protected function setBaseurlMiddleware(): callable
+    {
+        return function ($c) {
+            return new Middleware\Baseurl($c);
         };
     }
 
