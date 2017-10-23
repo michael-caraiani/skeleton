@@ -21,6 +21,9 @@ return [
             'prefixies' => [
                 dirname(__DIR__),
             ],
+            'tags' => [
+                'interface' => PHP_SAPI,
+            ],
         ],
     ],
 
