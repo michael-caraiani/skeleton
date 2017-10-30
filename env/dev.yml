@@ -4,7 +4,7 @@ services:
     build: .
     volumes:
       - cache:/var/www/app/cache
-      - .:/var/www
+      - ..:/var/www
     ports:
       - 8080:8080
     environment:
@@ -14,18 +14,18 @@ services:
   update:
     image: composer
     command: ["update", "--no-dev", "--ignore-platform-reqs", "--no-ansi", "--no-interaction", "--no-progress", "--no-scripts", "-a", "-d", "/app"]
-    volumes: ['.:/app']
+    volumes: ['..:/app']
 
   # Used for REST API or microservices
   phpunit:
     image: phpunit/phpunit
     command: ["--coverage-text","--coverage-html", "/app/tests/coverage", "--colors=never"]
-    volumes: ['.:/app']
+    volumes: ['..:/app']
 
   # Used for REST API, microservices and fullstack
   codeception:
     image: codeception/codeception
-    volumes: ['.:/project']
+    volumes: ['..:/project']
 
   # Used with codeception for UI (acceptance) testing
   selenium:
