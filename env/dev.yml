@@ -1,7 +1,8 @@
 version: "2"
 services:
   app:
-    build: .
+    build:
+      context: ../
     volumes:
       - cache:/var/www/app/cache
       - ..:/var/www
