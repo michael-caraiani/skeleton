@@ -39,4 +39,5 @@ Follow setup instructions in package README.md file (in most cases - just add ne
 Docker image offers following env variables:
 
 * **APP_ENV** - Application environment, usable when you need to define separate config for each environment, eg: for database. Default: dev
+* **APP_RELEASE** - Application release to track with Sentry, default: local
 * **PHP_OPCACHE_ENABLE** - Enable PHP Opcache. Default: 1

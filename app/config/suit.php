@@ -15,6 +15,7 @@ return [
         'options' => [
             'app_path' => dirname(__DIR__),
             'environment' => getenv('APP_ENV'),
+            'release' => getenv('APP_RELEASE'),
             'excluded_app_paths' => [
                 $cache_dir,
             ],

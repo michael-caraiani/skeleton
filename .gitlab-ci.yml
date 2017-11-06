@@ -35,12 +35,13 @@ before_script:
   script:
     - cibu prepare-ssh
     - cibu compose login gitlab-ci-token $CI_JOB_TOKEN $CI_REGISTRY
+    - sed -i "s/RELEASE_PLACEHOLDER/${SENTRY_RELEASE}/g" env/$CI_ENVIRONMENT_SLUG.yml
     - scp env/$CI_ENVIRONMENT_SLUG.yml $TARGET_HOST:$TARGET_PATH/docker-compose.yml
     - cibu compose pull
     - cibu compose update app
     - cibu compose up -d --no-deps --no-recreate
     - cibu compose cleanup
-    - cibu sentry release $CI_ENVIRONMENT_SLUG-$CI_PIPELINE_ID $CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID
+    - cibu sentry release $SENTRY_RELEASE $CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID
 
 .tags: &tags
   tags:
@@ -106,6 +107,7 @@ deploy_staging:
       url: https://qa.example.com
     variables:
       TARGET_HOST: root@qa.example.com
+      SENTRY_RELEASE: $CI_ENVIRONMENT_SLUG-$CI_PIPELINE_ID
     <<: *deploy
     <<: *tags
 
@@ -118,5 +120,6 @@ deploy_production:
       url: https://example.com
     variables:
       TARGET_HOST: root@example.com
+      SENTRY_RELEASE: $CI_ENVIRONMENT_SLUG-$CI_PIPELINE_ID
     <<: *deploy
     <<: *tags
