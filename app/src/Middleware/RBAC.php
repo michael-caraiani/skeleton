@@ -82,7 +82,7 @@ class RBAC
      */
     protected function preprocess(ServerRequestInterface $request): void
     {
-        $this->resource = $request->getAttribute('route');
+        $this->resource = $request->getAttribute('route')->getPattern();
         $this->defaultRole = $this->container['config']('rbac.defaultRole', 'anonymous');
         $roleAttribute = $this->container['config']('rbac.roleAttribute', 'role');
         $this->role = $request->getAttribute($roleAttribute) ?? $this->defaultRole;
